@@ -1,0 +1,41 @@
+# Use Node.js 18.18.0 with Alpine Linux as the base image
+FROM node:18.18.0-alpine
+
+# Set environment variables
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0 \
+    TZ=Asia/Jakarta
+
+RUN npm config set "strict-ssl" false -g
+
+RUN npm install -g yarn --force
+
+# Install Yarn
+RUN apk --no-cache add bash git sudo
+
+# Install LibreOffice and necessary dependencies
+RUN apk --no-cache add libreoffice
+RUN apk --no-cache add ttf-dejavu
+RUN apk --no-cache add ttf-droid
+RUN apk --no-cache add ttf-freefont
+RUN apk --no-cache add ttf-liberation
+
+# Install JRE separately
+RUN apk --no-cache add openjdk11
+
+# Set the working directory within the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json to the container
+COPY package*.json ./
+COPY yarn.lock ./
+
+RUN yarn config set "strict-ssl" false -g
+
+# Install application dependencies
+RUN yarn install
+
+# Copy the application source code to the container
+COPY . .
+
+# Specify the command to run the application in development mode
+CMD [ "yarn", "run", "start:dev" ]
