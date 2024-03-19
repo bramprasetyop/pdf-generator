@@ -1,12 +1,7 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-import { createBullBoard } from '@bull-board/api';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
-import { ExpressAdapter } from '@bull-board/express';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Queue } from 'bull';
 import * as compression from 'compression';
 
 import { AppModule } from './app.module';
@@ -19,7 +14,6 @@ async function bootstrap() {
   checkConfigService();
 
   const app = await NestFactory.create(AppModule, { cors: true });
-  const basicAuth = require('express-basic-auth');
 
   // set using compression
   app.use(
@@ -27,28 +21,6 @@ async function bootstrap() {
       threshold: 512
     })
   );
-
-  // start message queue dashboard
-  const serverAdapter = new ExpressAdapter();
-  serverAdapter.setBasePath('/queue-monitoring');
-  const generatePdfQueue = app.get<Queue>(`BullQueue_pdfQueue`);
-
-  createBullBoard({
-    queues: [new BullAdapter(generatePdfQueue)],
-    serverAdapter
-  });
-
-  app.use(
-    '/queue-monitoring',
-    basicAuth({
-      users: {
-        admin: process.env.BULLMQ_PASS
-      },
-      challenge: true
-    }),
-    serverAdapter.getRouter()
-  );
-  // end message queue dashboard
 
   if (process.env.NODE_ENV !== 'production') {
     // swagger documentation

@@ -22,7 +22,7 @@ export class PdfController {
 
   @MessagePattern('pdf-generator-topic')
   pdfGeneratorResponse(@Payload(new ParseMessagePipe()) message): void {
-    this.pdfService.generatePDF(message);
+    this.pdfService.create({ ...message, isDataFromKafka: true });
   }
 
   @Post(`${API_PREFIX}pdf`)

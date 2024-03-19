@@ -1,22 +1,15 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { Cache } from 'cache-manager';
-import * as jwt from 'jsonwebtoken';
 import { ExtractJwt } from 'passport-jwt';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(
-    private readonly jwtService: JwtService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
-  ) {
+  constructor(private readonly jwtService: JwtService) {
     super();
   }
 
@@ -27,20 +20,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       });
     } catch (error) {
       return false;
-    }
-  }
-
-  async verifyRefreshToken(token: string): Promise<any> {
-    try {
-      const decoded: any = jwt.decode(token);
-      const refreshToken = await this.cacheService.get<any>(
-        `refreshToken${decoded?.nip}`
-      );
-      return await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_REFRESH_TOKEN
-      });
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token');
     }
   }
 
@@ -61,7 +40,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     try {
       const isValidToken = await this.verifyToken(accessToken);
       if (!isValidToken) {
-        return await this.verifyRefreshToken(accessToken);
+        throw new UnauthorizedException('Invalid token');
       }
       return true;
     } catch (error) {

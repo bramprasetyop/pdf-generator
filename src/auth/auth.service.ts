@@ -1,5 +1,4 @@
-import { CACHE_MANAGER, CacheStore } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LoggerService } from '@src/core/service/logger/logger.service';
 import axios from 'axios';
 
@@ -7,10 +6,7 @@ import { LoginDto, LoginResponseDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly logger: LoggerService,
-    @Inject(CACHE_MANAGER) private cacheService: CacheStore
-  ) {}
+  constructor(private readonly logger: LoggerService) {}
 
   async login(payload: LoginDto): Promise<LoginResponseDto> {
     const { username, password } = payload;
@@ -25,13 +21,6 @@ export class AuthService {
         password,
         appcode: process.env.AUTH_API_APP_CODE
       });
-
-      // save refresh token to redis
-      this.cacheService.set(
-        `refreshToken${data?.user?.nip}`,
-        data?.jwt?.refreshToken,
-        { ttl: data?.jwt?.expiresIn }
-      );
 
       return {
         statusCode: 200,

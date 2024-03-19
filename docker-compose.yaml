@@ -17,16 +17,6 @@ services:
       - net-pdfgenerator-nest
       - net-eli-kafka
 
-  api-pdfgenerator-redis:
-    image: redis:7.2.2-alpine
-    container_name: api-pdfgenerator-redis
-    restart: on-failure
-    ports:
-      - 6378:6379
-    networks:
-      - net-pdfgenerator-nest
-      - net-eli-kafka
-
   db-pdfgenerator-nest:
     image: postgres:16-alpine
     container_name: db-pdfgenerator-nest

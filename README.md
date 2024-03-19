@@ -42,10 +42,6 @@ Note: Ensure that Docker is installed on your machine before running the Docker 
 
 Access application swagger at [localhost:3003/docs](http://localhost:3003/docs).
 
-## Bull Queue Dashboard
-
-Access dashboard for monitoring Queue process at [localhost:3003/queue-monitoring](http://localhost:3003/queue-monitoring).
-
 ## Database Migrations
 
 ```bash
